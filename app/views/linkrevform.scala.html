@@ -1,0 +1,8 @@
+@(urlForm: Form[String])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@form(action = routes.Application.linkrev) {
+<p>@inputText(urlForm("url"), '_showConstraints -> false, '_label -> "", '_showErrors -> false, 'placeholder -> "URL", 'size -> 100)</p>
+}
