@@ -1,0 +1,10 @@
+@(reForm: Form[String])
+
+@import helper._
+@import helper.twitterBootstrap._
+
+@form(action = routes.Application.linkfind) {
+<fieldset>
+@inputText(reForm("re"), '_showConstraints -> false, '_label -> "", '_showErrors -> false, 'placeholder -> "Query to match in URLs", 'class -> "input-xxlarge")
+</fieldset>
+}

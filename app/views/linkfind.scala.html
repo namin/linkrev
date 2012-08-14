@@ -1,0 +1,12 @@
+@(re: String, reForm: Form[String], urls: List[(String,String)], msg: String)
+
+@main("Find Links in Index") {
+  @linkfindform(reForm)
+
+  @msg
+  <ul>
+    @for(url <- urls) {
+     <li><a href="@routes.Application.linkrev?url=@url._2">@url._1</a></li>
+    }
+  </ul>
+}
