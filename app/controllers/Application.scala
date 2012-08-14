@@ -67,6 +67,7 @@ object Application extends Controller {
   }
 
   val urlForm = Form("url" -> nonEmptyText)
+  val reForm = Form("re" -> nonEmptyText)
   
   def index = Action {
     Ok(views.html.index(urlForm))
@@ -82,9 +83,25 @@ object Application extends Controller {
       }}})
   }
 
+  def linkfind = Action { implicit request =>
+    reForm.bindFromRequest.fold(
+      reForm => Ok(views.html.linkfind("", reForm, List(), "")),
+      re => Async { handleTimeout {
+        indexedUrlsMatching(re) map { urls =>
+          Ok(views.html.linkfind(re, reForm.bindFromRequest, urls.map({url => (url, java.net.URLEncoder.encode(url, implicitly[Codec].charset))}),
+             if (urls.isEmpty) "No match in index." else "Query matches some URLs in index."))
+      }}})
+  }
+
   def linksTo(url: String) = {
     gremlin("g.idx(Tokens.T.v)[[url:url]].inE('linksTo').outV.url",
             JsObject(Seq("url" -> JsString(url))))
+    .map(_.as[List[String]])
+  }
+
+  def indexedUrlsMatching(re: String) = {
+    gremlin("g.idx(Tokens.T.v)[[url:url]].url.take(50)",
+            JsObject(Seq("url" -> JsString("%query%*"+re+"*"))))
     .map(_.as[List[String]])
   }
 
