@@ -76,27 +76,17 @@ object Application extends Controller {
     urlForm.bindFromRequest.fold(
       urlForm => Ok(views.html.index(urlForm)),
       url => Async { handleTimeout {
-        responsePromise(awsUrl(getUid(url))) map { response =>
-          if (response.status == 403) {
-            Ok(views.html.linkrev(url, urlForm.bindFromRequest, List(), "URL not in reverse index."))
-          } else {
-            Ok(views.html.linkrev(url, urlForm.bindFromRequest, response.body.split(" ").toList.tail, "URL in index."))
-          }
-        }
-      }})
+        linksTo(url) map { links =>
+          Ok(views.html.linkrev(url, urlForm.bindFromRequest, links,
+             if (links.isEmpty) "URL not in reverse index." else "URL in index."))
+      }}})
   }
 
-  private def awsUrl(uid: String): String = {
-    val awsUrl = "http://s3.amazonaws.com/namin-live/linkrev/1341690147253/" + uid + ".txt"
-    Logger.debug("aws url: " + awsUrl)
-    awsUrl
+  def linksTo(url: String) = {
+    gremlin("g.idx(Tokens.T.v)[[url:url]].inE('linksTo').outV.url",
+            JsObject(Seq("url" -> JsString(url))))
+    .map(_.as[List[String]])
   }
-
-  private def getUid(url: String): String =
-    java.util.UUID.nameUUIDFromBytes(url.getBytes).toString
-
-  private def responsePromise(url : String) =
-    WS.url(url).get()  
 
   private def handleTimeout(promise: Promise[Result]) = {
     promise orTimeout("Timed out while waiting for response", 120, java.util.concurrent.TimeUnit.SECONDS) map { _.fold (
