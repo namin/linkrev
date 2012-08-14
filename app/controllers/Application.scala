@@ -40,7 +40,7 @@ object Application extends Controller {
 
     if (gremlinExec("g.idx('vertices')[[type:'URL']].count()").asOpt[Int].getOrElse(0) > 0) {
       println("Graph already exists.")
-      //return
+      return
     }
 
     if (gremlinExec("g.indices").as[Array[String]].isEmpty) {
@@ -52,7 +52,7 @@ object Application extends Controller {
     gremlinAsync("Creating the graph is going to take some time, watch it on " + neo4jUrl, """
             g.setMaxBufferSize(1000);
 
-            'http://lampwww.epfl.ch/~amin/dat/people.csail.mit.txt'.toURL().eachLine { def line ->
+            'http://lampwww.epfl.ch/~amin/dat/mit.txt'.toURL().eachLine { def line ->
               def urls = line.split(' ');
               def url = urls[0];
               def urlHits = g.idx(Tokens.T.v)[[url:url]].iterator();
