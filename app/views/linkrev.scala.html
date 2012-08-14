@@ -1,0 +1,12 @@
+@(url: String, urlForm: Form[String], fromUrls: List[String], msg: String)
+
+@main("Reverse Links!") {
+  @linkrevform(urlForm)
+
+  @msg
+  <ul>
+    @for(fromUrl <- fromUrls) {
+     <li><a href="@fromUrl">@fromUrl</a></li>
+    }
+  </ul>
+}
