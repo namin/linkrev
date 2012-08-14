@@ -24,7 +24,7 @@ object Application extends Controller {
       url => Async { handleTimeout {
         responsePromise(awsUrl(getUid(url))) map { response =>
           if (response.status == 403) {
-            Ok(views.html.linkrev(url, urlForm, List(), "URL not in index."))
+            Ok(views.html.linkrev(url, urlForm.bindFromRequest, List(), "URL not in reverse index."))
           } else {
             Ok(views.html.linkrev(url, urlForm.bindFromRequest, response.body.split(" ").toList.tail, "URL in index."))
           }
@@ -33,7 +33,7 @@ object Application extends Controller {
   }
 
   private def awsUrl(uid: String): String = {
-    val awsUrl = "http://s3.amazonaws.com/namin-live/linkrev/1341690168633/" + uid + ".txt"
+    val awsUrl = "http://s3.amazonaws.com/namin-live/linkrev/1341690147253/" + uid + ".txt"
     Logger.debug("aws url: " + awsUrl)
     awsUrl
   }
