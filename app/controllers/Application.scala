@@ -100,7 +100,7 @@ object Application extends Controller {
   }
 
   def indexedUrlsMatching(re: String) = {
-    gremlin("g.idx(Tokens.T.v)[[url:url]].filter{!it.outE('linksTo').empty()}.url.take(50)",
+    gremlin("g.idx(Tokens.T.v)[[url:url]].filter{it.inE('linksTo').count()>0}.url.take(50)",
             JsObject(Seq("url" -> JsString("%query%*"+re+"*"))))
     .map(_.as[List[String]])
   }
